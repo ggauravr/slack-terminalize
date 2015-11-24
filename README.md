@@ -1,4 +1,9 @@
 Module to help build a custom command-line vocabulary for your bot
+
+
+[![Build Status](https://travis-ci.org/ggauravr/slack-terminalize.svg?branch=develop)](https://travis-ci.org/ggauravr/slack-terminalize)
+
+[![Coverage Status](https://coveralls.io/repos/ggauravr/slack-terminalize/badge.svg?branch=develop&service=github)](https://coveralls.io/github/ggauravr/slack-terminalize?branch=develop)
 =======
 Helps build a command-line system in Slack, to create a custom command-line vocabulary for your bot
 
