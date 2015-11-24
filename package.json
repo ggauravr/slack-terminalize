@@ -1,0 +1,37 @@
+{
+  "name": "slack-terminalize",
+  "version": "0.0.1",
+  "description": "Module to help build a custom command-line vocabulary for your bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/.bin/mocha test/* --reporter spec",
+    "cover": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha test/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.paypal.com:gnramesh/slack-terminalize.git"
+  },
+  "keywords": [
+    "slack",
+    "terminal",
+    "cli",
+    "hubot"
+  ],
+  "author": {
+    "name": "Gaurav Ramesh",
+    "email": "gggauravr@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "slack-client": "^1.4.1"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "coveralls": "^2.11.4",
+    "istanbul": "^0.4.0",
+    "mocha": "^2.3.4"
+  }
+}
