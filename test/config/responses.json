@@ -1,0 +1,7 @@
+{
+	"cmd-a": {
+		"success": "success response",
+		"error": "error response",
+		"incorrect_usage": "incorrect usage response"
+	}
+}
