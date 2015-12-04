@@ -4,11 +4,11 @@
   - For developers: Potential for interesting applications with their APIs and integrations:Web hooks, Slash commands and Bots
 
 - Goal of the tutorial
-  - This turorial aims to help developers get up and running with a simple node app that turns your slack channel into a custom command-line terminal. The sample app
-    uses 'slack-terminalize'(disclaimer: I built it), a module that abstracts away initial processing of the messages, helping the developer to focus on command implementations instead.
+  - This turorial aims to help developers get up and running with a simple node app that turns your slack channel into a custom command-line terminal. The app
+    uses a helper module called 'slack-terminalize'(disclaimer: I developed it), that abstracts away initial processing of the messages, helping the developer to focus on command implementations instead. It uses the Slack real-time API and prepares a bot to listen and respond to your requests.
 
 - Need/Motivation for slack-terminalize
-  While there're fancy hubot scripts that respond to natural language queries, a lot can be achieved with short commands and minimal keystrokes, as any linux terminal fan would agree. Simple commands also prove especially useful in a mobile device and with that motivation, I built slack-terminalize, a module with a parse-and-dispatch approach, that takes care of initial processing and tokenization of the message. Also with a simple, plugin like architecture to add custom commands, it facilitates seting up a working app in a matter of minutes.
+  While there're many fancy hubot scripts that respond to natural language queries, a lot can be achieved with short commands and minimal keystrokes, as any linux terminal fan would agree. Simple commands also prove especially useful in a mobile device. And when you intend to work with a command-line system, a lot of grunt work remains fairly generic, irrespective of the application. With that in mind, I felt the need of a module that could take care of exactly that. With a parse-and-dispatch approach and a plugin-like architecture to add custom commands, slack-terminalize facilitates seting up a working app in a matter of minutes.
 
 - Why not Slash commands?
   - Slash commands(link) are one way to achieve this, but each slash command that you add counts as a separate integration(link), and with the free tier of Slack, there's a limit on the number of integrations that can be added to a team. So this project takes a different approach, of using the Real-time API(link) to listen to every message posted on the configured channels, tokenize the message to break them down to command and args.
@@ -20,20 +20,32 @@
     - Introduction to Hubot
     - ... and other useful getting started links
 
-- Dissecting <my-module-name>(the module I'm working on)
-  - What is it.. ?
-    - A node module that helps build a custom command vocabulary for your team. It might be a bit opinionated in its approach in that it requires a
-      specific project structure and file names, which nonetheless is very customizable.
+- Getting started
+  - First, let's create a bot new bot user to your team, that can take your orders! Go to https://<your-team-name>.slack.com/services/new/bot and choose a name for your 
+    bot. Copy the API token shown to you, as this is required for your bot to be able to interact with your slack channels. Configure other details of the bot, like it's profile image and real name and hit Save Integration.
 
-- Why should I use it?
-  - natural lanuage interpretation vs command interface: type less, do more - good for mobile devices
-  - asbtract the most basic tasks of message interpretation: clean, parse, tokenize
-  - help developers focus more on declaring and defining custom commands, rather than handling the raw message
-
-- Getting started ?
-  - Add a new bot user integration, get a token
   - Clone and set up the sample app with github link
+
   - Project structure walkthrough.. organization of directories and files
+    1. The only required dependency is slack-terminalize, but since the sample app has an example to show how to handle async commands, request is used to make some REST calls.
+
+    2. config/
+      As you can see config/ directory has two json files:
+      
+      1. commands.json - This is what makes adding custom commands a piece of cake. Each command is represented ny a key-value pair, with key being the command(primary) name itself, and value being any object with custom key-value pairs, that you would want to use for a command.
+      e.g: Here I use, for custom fields for each command: 
+        - alias - these are the aliases(or secondary names) for the command, which can also be used in the slack channel
+        - description - a short readable description of what the command does
+        - help - a short help message, to do something like man <command-name> or help <command-name>
+        - endpoint - REST endpoint that the command should talk to, in case, it depends on any external services to perform its task
+      None of these is mandatory, you're free to use any fields inside the command object, that makes sense for your app
+
+      2. responses.json - Instead of embedding string messages in the command implementation itself, this json makes it easy to define the various cases your command could run into(like success, error, insufficient_arguments) and the corresponding response templates
+
+    3. commands/
+      This is where the magic happens, place where you implement your commands. Each command specified in config/commands.json should have its matching implementation here, with the filename matching the key(primary name) used in that json. That is how the dispatcher invokes the right handler.
+
+
   - Code walkthrough for the sample app
   - How to declare custom commands, defining their implementation
   - Implementing two simple commands: one that responds synchronously, and one that responds asynchronously(calls an external API, to fetch response)

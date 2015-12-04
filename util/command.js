@@ -12,7 +12,7 @@ var path 		= require('path'),
  * 
  * @return {none}
  */
-var	setCommandPattern = function () {
+var	_setCommandPattern = function () {
 	var commands = require(path.resolve(configUtil.get('CONFIG_DIR'), 'commands')),
 		command,
 		aliases;
@@ -26,8 +26,34 @@ var	setCommandPattern = function () {
 
 };
 
-exports.init = function () {
-	setCommandPattern();
+/**
+ * Fetches the primary command name from the command/alias specified by a user.
+ * Command is only matched when the user command is found in the form: [user-command, or [...,user-command]
+ * in the command pattern. This is done to avoid prefix/suffix matching.
+ *
+ * e.g: If the command pattern is: [help][lp, lpcommand] and if the user specified lp, then jsut matching for lp
+ * matches 'help' too. So we wanna find the user command(lp) either after a ',' or a '[' character.
+ * 
+ * @param  {String} Command entered by the user, i.e the first word from the message entered
+ * @return {String | undefined} Primary command, if the user command is matched to its primary, undefined otherwise
+ */
+var _getCommand = function(userCommand) {
+	var pattern = new RegExp('\\[(([^\\[]*[,])?' + userCommand + '[^\\]]*)\\]', 'i'),
+		matches = cmdPattern.match(pattern) && cmdPattern.match(pattern)[0];
+
+	if (!matches) {
+		return configUtil.get('ERROR_COMMAND');
+	}
+
+	var	strippedMatch = ( matches.match(/\[(.*)\]/) && matches.match(/\[(.*)\]/)[1] ) || '',
+		aliases = strippedMatch.split(',') || [];
+	
+	return aliases.length ? aliases[0] : configUtil.get('ERROR_COMMAND');
+
+};
+
+var init = function () {
+	_setCommandPattern();
 };
 
 /**
@@ -40,11 +66,11 @@ exports.init = function () {
  * @param  {String} - Text/message entered by a user in slack channel
  * @return {Object} - Object containing user, channel, command and arguments, all parsed from the user message
  */
-exports.parse = function (message) {
+var parse = function (message) {
 	var cleanMessage 	= message.text && message.text.trim().replace(regexUtil.regex.multi_spaces, configUtil.get('COMMAND_DELIM')),
 		tokens			= cleanMessage.split(configUtil.get('COMMAND_DELIM')),
 		userCommand		= tokens.length && tokens[0],
-		command 		= getCommand(userCommand),
+		command 		= _getCommand(userCommand),
 		args;
 
 	// get rid of the command
@@ -78,36 +104,15 @@ exports.parse = function (message) {
 	};
 };
 
-/**
- * Fetches the primary command name from the command/alias specified by a user.
- * Command is only matched when the user command is found in the form: [user-command, or [...,user-command]
- * in the command pattern. This is done to avoid prefix/suffix matching.
- *
- * e.g: If the command pattern is: [help][lp, lpcommand] and if the user specified lp, then jsut matching for lp
- * matches 'help' too. So we wanna find the user command(lp) either after a ',' or a '[' character.
- * 
- * @param  {String} Command entered by the user, i.e the first word from the message entered
- * @return {String | undefined} Primary command, if the user command is matched to its primary, undefined otherwise
- */
-var getCommand = function(userCommand) {
-	var pattern = new RegExp('\\[(([^\\[]*[,])?' + userCommand + '[^\\]]*)\\]', 'i'),
-		matches = cmdPattern.match(pattern) && cmdPattern.match(pattern)[0];
-
-	if (!matches) {
-		return configUtil.get('ERROR_COMMAND');
-	}
-
-	var	strippedMatch = ( matches.match(/\[(.*)\]/) && matches.match(/\[(.*)\]/)[1] ) || '',
-		aliases = strippedMatch.split(',') || [];
-	
-	return aliases.length ? aliases[0] : configUtil.get('ERROR_COMMAND');
-
-};
-
-exports.getCommandObjects = function () {
+var getCommandObjects = function () {
 	return JSON.parse(JSON.stringify(require(path.resolve(configUtil.get('CONFIG_DIR'), 'commands'))));
 };
 
-exports.getResponseObjects = function () {
+var getResponseObjects = function () {
 	return JSON.parse(JSON.stringify(require(path.resolve(configUtil.get('CONFIG_DIR'), 'responses'))));
 };
+
+exports.init = init;
+exports.parse = parse;
+exports.getCommandObjects = getCommandObjects;
+exports.getResponseObjects = getResponseObjects;

@@ -2,6 +2,7 @@
 
 var Slack 		= require('slack-client'),
 	configUtil	= require('./util/config'),
+	commandUtil	= require('./util/command'),
 	dispatcher	= require('./dispatcher'),
 	slackClient,
 	options = {
@@ -35,8 +36,7 @@ var getSlackClient = function () {
 var init = function (opts, config) {
 	
 	if (!opts || !opts.SLACK_TOKEN) {
-		console.log('ERR: opts or opts.SLACK_TOKEN parameter missing in init');
-		return;
+		throw new Error('SLACK_TOKEN not passed with opts in init');
 	}
 
 	options.SLACK_TOKEN 	= opts.SLACK_TOKEN;
@@ -46,14 +46,13 @@ var init = function (opts, config) {
 	slackClient = new Slack(options.SLACK_TOKEN, options.AUTO_RECONNECT, options.AUTO_MARK);
 
 	configUtil.init(config);
-
-	listen();
-
-	login();
+	
+	_listen();
+	_login();
 };
 
 
 exports.init 				= init;
-exports.getCommandObjects 	= configUtil.getCommandObjects;
-exports.getResponseObjects 	= configUtil.getResponseObjects;
+exports.getCommandObjects 	= commandUtil.getCommandObjects;
+exports.getResponseObjects 	= commandUtil.getResponseObjects;
 exports.getSlackClient 		= getSlackClient;
