@@ -14,8 +14,6 @@ var _listen = function () {
 	dispatcher.init(slackClient);
 
 	slackClient.on('message', function (message) {
-		console.log('INFO: ' + message + ' received.');
-
 		dispatcher.handle(message);
 	});
 };
@@ -28,6 +26,10 @@ var _login = function () {
 	}
 
 	slackClient.login();
+};
+
+var getSlackClient = function () {
+	return slackClient;
 };
 
 var init = function (opts, config) {
@@ -45,17 +47,13 @@ var init = function (opts, config) {
 
 	configUtil.init(config);
 
-	console.log('INFO: Directory name: ' + __dirname);
+	listen();
 
-	_listen();
-
-	_login();
+	login();
 };
 
-exports.getSlackClient = function () {
-	return slackClient;
-};
 
-exports.init 	= init;
-exports.getCommandObjects = configUtil.getCommandObjects;
-exports.getResponseObjects = configUtil.getResponseObjects;
+exports.init 				= init;
+exports.getCommandObjects 	= configUtil.getCommandObjects;
+exports.getResponseObjects 	= configUtil.getResponseObjects;
+exports.getSlackClient 		= getSlackClient;

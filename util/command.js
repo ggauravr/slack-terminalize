@@ -94,13 +94,13 @@ var getCommand = function(userCommand) {
 		matches = cmdPattern.match(pattern) && cmdPattern.match(pattern)[0];
 
 	if (!matches) {
-		return;
+		return configUtil.get('ERROR_COMMAND');
 	}
 
 	var	strippedMatch = ( matches.match(/\[(.*)\]/) && matches.match(/\[(.*)\]/)[1] ) || '',
 		aliases = strippedMatch.split(',') || [];
 	
-	return aliases.length && aliases[0];
+	return aliases.length ? aliases[0] : configUtil.get('ERROR_COMMAND');
 
 };
 

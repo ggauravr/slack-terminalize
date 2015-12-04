@@ -2,9 +2,8 @@
 
 var configUtil	= require('./util/config'),
 	commandUtil	= require('./util/command'),
-	path		= require('path');
-
-var handlers,
+	path		= require('path'),
+	handlers,
 	commands,
 	slackClient;
 
@@ -26,31 +25,44 @@ var init = function (client) {
 	commandUtil.init();
 
 	commands = require(path.resolve(configUtil.get('CONFIG_DIR'), 'commands'));
-	console.log('info: commands found: ', commands);
 
 	Object.keys(commands).forEach(function (command) {
 		handlers[command] = require(path.resolve(configUtil.get('COMMAND_DIR'), command));
-
-		// console.log(command);
 	});
 };
 
+/**
+ * Processes, using helpers, the user message posted and calls the appropriate command,
+ * passing it an object with four parameters: the channel posted, the user posting,
+ * the command entered by the user and the additional text as an array of tokens(args).
+ * If no matching command is found, looks for and calls file named after the ERROR_COMMAND
+ * config parameter set on initialization.
+ * 
+ * @param  {String} Message posted by a user in Slack channel
+ * @return {none}
+ */
 var handle = function (message) {
 	var messageDetails,
 		command;
 
+	// gets command and args parametrs
 	messageDetails = commandUtil.parse(message);
 	
 	messageDetails.user = slackClient.getUserByID(message.user);
 	messageDetails.channel = slackClient.getChannelGroupOrDMByID(message.channel);
-		
-	handlers[messageDetails.command](messageDetails);
 	
-	// console.log("Message Details", messageDetails);
-	console.log("Command", messageDetails.command);
+	if (!messageDetails.user || messageDetails.user.is_bot) {
+		console.log('ERR: User - ' + messageDetails.user + ' - is undefined, or is a bot');
+		return;
+	}
+	
+	if (!handlers[messageDetails.command]) {
+		console.log('ERR: Please check if the command file exists in commands directory');
+		return;
+	}
 
-	console.log('info: dispatcher initiated');
+	handlers[messageDetails.command](messageDetails);
 };
 
-exports.init = init;
-exports.handle = handle;
+exports.init 	= init;
+exports.handle 	= handle;

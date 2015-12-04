@@ -26,7 +26,7 @@ describe('Command util library tests', function () {
 			text: 'invalidcmd'
 		});
 
-		assert.isUndefined(response.command);
+		assert.equal(response.command, configUtil.get('ERROR_COMMAND'));
 		assert.isArray(response.args);
 		assert.equal(0, response.args.length);
 	});
@@ -36,7 +36,7 @@ describe('Command util library tests', function () {
 			text: 'invalidcmd this that'
 		});
 
-		assert.isUndefined(response.command);
+		assert.equal(response.command, configUtil.get('ERROR_COMMAND'));
 		assert.isArray(response.args);
 		assert.equal(2, response.args.length);
 		assert.equal(response.args[0], 'this');
@@ -48,7 +48,7 @@ describe('Command util library tests', function () {
 			text: 'invalidcmd "this arg" and \'that arg\''
 		});
 
-		assert.isUndefined(response.command);
+		assert.equal(response.command, configUtil.get('ERROR_COMMAND'));
 		assert.isArray(response.args);
 		assert.equal(3, response.args.length);
 		assert.equal(response.args[0], 'this{SPACE}arg');
