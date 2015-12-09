@@ -22,8 +22,7 @@ var _listen = function () {
 var _login = function () {
 	
 	if (!slackClient) {
-		console.log('ERR: slackClient client not initialized');
-		return;
+		throw new Error('Slack client not initialized');
 	}
 
 	slackClient.login();

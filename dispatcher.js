@@ -42,26 +42,22 @@ var init = function (client) {
  * @return {none}
  */
 var handle = function (message) {
-	var messageDetails,
-		command;
+	var messageDetails;
 
 	// gets command and args parametrs
 	messageDetails = commandUtil.parse(message);
 	
 	messageDetails.user = slackClient.getUserByID(message.user);
 	messageDetails.channel = slackClient.getChannelGroupOrDMByID(message.channel);
+	messageDetails.commandConfig = commands[messageDetails.command];
 	
-	if (!messageDetails.user || messageDetails.user.is_bot) {
-		console.log('ERR: User - ' + messageDetails.user + ' - is undefined, or is a bot');
-		return;
-	}
-	
-	if (!handlers[messageDetails.command]) {
-		console.log('ERR: Please check if the command file exists in commands directory');
-		return;
-	}
+	if (messageDetails.user && !messageDetails.user.is_bot) {
+		if (!handlers[messageDetails.command]) {
+			throw new Error('Command `' + messageDetails.command + '` not found in ' + configUtil.get('COMMAND_DIR') + ' directory');
+		}
 
-	handlers[messageDetails.command](messageDetails);
+		handlers[messageDetails.command](messageDetails);
+	}
 };
 
 exports.init 	= init;
