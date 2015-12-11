@@ -19,8 +19,8 @@ var path = require('path'),
  * hence the default directory for CONFIG_DIR and COMMAND_DIR are ../../../<config|commands>, that's equaivalent to
  * <parent-project-root>/<config|commands>.
  *
- * @param  {Object} Configuration parameters
- * @return {none}
+ * @param  { object } configuration parameters
+ * @return { none }
  */
 var init = function (userConfig) {
 	config = {};

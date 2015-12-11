@@ -8,13 +8,13 @@ var configUtil	= require('./util/config'),
 	slackClient;
 
 /**
- * @param  {object} - Slack client
- * @return {none}
- *
  * Reads commands.json from CONFIG_DIR and sets up handlers.
- * Handlers are expected to have the same name as the command, i.e. 
+ * Handlers are expected to have the same name as the command, i.e.
  * of the pattern {command-name}.js
  * 
+ * @param  { object } Slack client
+ * @return { none }
+ *
  */
 var init = function (client) {
 
@@ -38,25 +38,26 @@ var init = function (client) {
  * If no matching command is found, looks for and calls file named after the ERROR_COMMAND
  * config parameter set on initialization.
  * 
- * @param  {String} Message posted by a user in Slack channel
- * @return {none}
+ * @param  { string } message posted by a user in Slack channel
+ * @return { none }
  */
-var handle = function (message) {
-	var messageDetails;
+var handle = function (msg) {
+	var data;
 
 	// gets command and args parametrs
-	messageDetails = commandUtil.parse(message);
+	data = commandUtil.parse(msg);
 	
-	messageDetails.user = slackClient.getUserByID(message.user);
-	messageDetails.channel = slackClient.getChannelGroupOrDMByID(message.channel);
-	messageDetails.commandConfig = commands[messageDetails.command];
+	data.user = slackClient.getUserByID(msg.user);
+	data.channel = slackClient.getChannelGroupOrDMByID(msg.channel);
+	data.commandConfig = commands[data.command];
 	
-	if (messageDetails.user && !messageDetails.user.is_bot) {
-		if (!handlers[messageDetails.command]) {
-			throw new Error('Command `' + messageDetails.command + '` not found in ' + configUtil.get('COMMAND_DIR') + ' directory');
+	// respond only for non-bot user messages
+	if (data.user && !data.user.is_bot) {
+		if (!handlers[data.command]) {
+			throw new Error('Command ' + data.command + ' not found in ' + configUtil.get('COMMAND_DIR') + ' directory');
 		}
 
-		handlers[messageDetails.command](messageDetails);
+		handlers[data.command](data);
 	}
 };
 

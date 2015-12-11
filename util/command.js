@@ -10,7 +10,7 @@ var path 		= require('path'),
  * for pattern matching message entered by a user.
  * Command pattern will be of the form: [command, alias, ...]
  * 
- * @return {none}
+ * @return { none }
  */
 var	_setCommandPattern = function () {
 	var commands = require(path.resolve(configUtil.get('CONFIG_DIR'), 'commands')),
@@ -31,11 +31,11 @@ var	_setCommandPattern = function () {
  * Command is only matched when the user command is found in the form: [user-command, or [...,user-command]
  * in the command pattern. This is done to avoid prefix/suffix matching.
  *
- * e.g: If the command pattern is: [help][lp, lpcommand] and if the user specified lp, then jsut matching for lp
+ * e.g: If the command pattern is: [help][lp, lpcommand] and if the user specified lp, then just matching for lp
  * matches 'help' too. So we wanna find the user command(lp) either after a ',' or a '[' character.
  * 
- * @param  {String} Command entered by the user, i.e the first word from the message entered
- * @return {String | undefined} Primary command, if the user command is matched to its primary, undefined otherwise
+ * @param  { string } Command entered by the user, i.e the first word from the message entered
+ * @return { string | undefined } Primary command, if the user command is matched to its primary, undefined otherwise
  */
 var _getCommand = function(userCommand) {
 	var pattern = new RegExp('\\[(([^\\[]*[,])?' + userCommand + '[^\\]]*)\\]', 'i'),
