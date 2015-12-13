@@ -10,47 +10,34 @@ If you're thinking, no way that's unique to Slack: HipChat(or your favorite app 
 
 This turorial aims to help developers get up and running with a simple node app that turns your slack channel into a custom command-line terminal. The app uses a helper module called [slack-terminalize](https://github.com/ggauravr/slack-terminalize)_(disclaimer: I developed it)_, that abstracts away initial processing of the messages. It uses the Slack's [Real-Time API Node client](https://github.com/slackhq/node-slack-client) and prepares a bot to listen and respond to your requests. 
 
-Note that we won't be using [Slash Commands]()(more on it below) here, but instead interpret regular messages as commands. So if you were looking to learn about Slash Commands, this might not be the appropriate tutorial.
+Note that we won't be using [Slash Commands](https://api.slack.com/slash-commands) here, but instead interpret regular messages as commands. So if you were looking to learn about Slash Commands, this might not be the appropriate tutorial.
 
 ## Before Getting Started
-The tutorial assumes that you have a working knowledge of Javascript and NodeJS and that you're familiar with Slack jargon: teams, channels, [bots](https://api.slack.com/bot-users), [integrations](https://slack.com/integrations). Also, you'll need node and npm installed. You can follow [this](http://www.sitepoint.com/beginners-guide-node-package-manager/) wonderful SitePoint introduction on npm to set up your dev environment.
+My assumption is that you have a working knowledge of Javascript and NodeJS and that you're familiar with Slack jargon: teams, channels, [bots](https://api.slack.com/bot-users), [integrations](https://slack.com/integrations). Also, you'll need _node_ and _npm_ installed. You can follow [this](http://www.sitepoint.com/beginners-guide-node-package-manager/) wonderful SitePoint introduction on npm, to set up your dev environment.
 
 ## Motivation for _slack-terminalize_
 
-  While there're many fancy [hubot](https://github.com/slackhq/hubot-slack) [scripts](https://hubot.github.com/docs/#scripts) that respond to natural language queries, a lot can be achieved with short commands and minimal keystrokes, as any linux fan would agree. Simple commands especially make sense in a mobile device, helping you type less, do more. And if you think about a command-line system, say your linux terminal, most of the times what the shell is doing(gross oversimplification, I know) is the grunt work of fetching, cleaning, parsing, tokenizing and dispatching the commands. With that in mind, I felt the need of a module which could take care of exactly that, a shell for Slack channel if you will. With a parse-and-dispatch approach and a plugin-like architecture to add custom commands, _slack-terminalize_ abstracts things so you can focus more on defining the behavior of the app instead.
-  
-## Slack Bots vs Slash Commands
-- Slash commands have ephemeral messages and auto-complete/suggest<br/>
- _Commands: 1, Bots: 0_
-
-- You get more control with bots, since you can decide which channels the bot is in(even private channels). Also, you can send direct messages to it, just like a regular user.<br/>
-  _Commands: 1, Bots: 1_ 
-
-- Slash commands use HTTP, where as bot integrations use WebSockets<br/>
-  _Commands: 1, Bots: 2_
-  
-- Each new bot user integration [counts as a separate integration](https://api.slack.com/bot-users), so there's a [limit](https://pp-openwallet.slack.com/pricing) to the number of bots you can have in your team in the free tier of Slack<br/>
-  _Commands: 2, Bots: 2_
-
-- If the Slash command you want to define is already used by one of the third-party integrations you have made, you gotta compromise on the command name. Bots, on the other hand just read your commands like regular messages, so there's no conflict with other integrations. No fancy prefixes(like / for Slash Commands) for your messages.<br/>
-  _Commands: 2, Bots: 3_
-  
-So, from my carefully chosen points and a biased opinion towards bots, clearly(surprise, surprise) bots win.
+  While there're many fancy [hubot](https://github.com/slackhq/hubot-slack) [scripts](https://hubot.github.com/docs/#scripts) that respond to natural language queries, a lot can be achieved with short commands and minimal keystrokes, as any linux fan would agree. Simple commands especially make sense in a mobile device, helping you type less, do more. And if you think about a command-line system, say your linux terminal, most of the times what the shell is doing(gross oversimplification, I know) is the grunt work of fetching, parsing, tokenizing and dispatching the commands. With that in mind, I felt the need of a module which could do exactly that, a shell for Slack channel if you will. With a parse-and-dispatch approach and a plugin-like architecture to add custom commands, _slack-terminalize_ abstracts things so you can focus more on defining the behavior of the app instead.
 
 ## Enough Talk, Let's Get Started
-  First, let's create a new bot user for your team, that can take your orders! Go to **_https://\<your-team-name\>.slack.com/services/new/bot_** and choose a username for it, hit **_Add Bot Integration_**. Copy the API token shown to you, as this is required for your bot to be able to interact with the channels. Configure other details of the bot, like it's profile image and real name(that's right, real name for a fake user) and hit **_Save Integration_**.
+First, let's create a new bot user for your team, that can take your orders! Go to _https://\<your-team-name\>.slack.com/services/new/bot_ and choose a username for it, hit _Add Bot Integration_. 
+![Add Bot User](bot_user_add.png "Add Bot User")
+
+Copy the API token shown to you, as this is required for your bot to be able to interact with the channels. Configure other details of the bot, like it's profile image and real name and hit _Save Integration_.
+
+![Save Bot User](bot_user_save.png "Save Bot User")
 
 Then, clone and set up the sample app from [this repo](http://www.github.com)
 
 ### Project Structure Walkthrough
 
-From the list of dependencies in package.json, the only required dependency is _slack-terminalize_, but since the sample app has an example to show how to handle async commands, _request_ is used to make REST calls.
+From the list of dependencies in _package.json_, the only required dependency is _slack-terminalize_, but since the sample app has an example on how to handle async commands, [request](https://www.npmjs.com/package/request) is used to make REST calls.
 
 ![Project Structure](project_structure.png "Project Strucrure")
 
 **config/**
 
-All the json files you might need for your app could go here. And I say could because it's fairly flexible and can changed to work with a different directory, with the right config parameters passed. More on that later.
+All the json files you might need for your app could go here. And I say could because it's fairly flexible and can be changed to work with a different directory, with the right configuration parameters(more on that, later) passed. This is just one of the many ways to structure your app, but I suggest, if you're new to Slack integrations, stick with this.
       
  _commands.json_
  
@@ -194,6 +181,16 @@ module.exports = function (param) {
 	// 3. user - Slack client User object
 	// 4. channel - Slack client Channel object
 	// 5. commandConfig - the json object for this command from config/commands.json
+	
+	// implement your logic here.. 
+	// .. 
+	
+	// send back the response
+	// more on this method here: https://api.slack.com/methods/chat.postMessage
+	param.channel.postMessage({
+		as_user: true,
+		text: 'You entered `' + command + '` with arguments `' + param.args.join(" ") + '`\n';
+	});
 };
 ```
 
@@ -219,10 +216,10 @@ slackTerminal.init({
 })
 ```
 
-These are the basic and simple parameters it takes. For more on the parameters, you can check the documentation [here](https://github.com/ggauravr/slack-terminalize).
+For more on the parameters, you can check the documentation [here](https://github.com/ggauravr/slack-terminalize).
 
 ## What Next?
-- Go define some cool commands for your team: have fun and increase productivity. 
+- Go define some cool commands for your team: have fun and increase productivity.
 - Fork the projects: [_slack-terminalize_]() and [its sample app](). Play around, contribute and help me improve it.
 - Write to me about how you're using Slack for productivity. I'm all ears to learn the creative applications of the power bestowed upon developers by Slack APIs
 
