@@ -45,18 +45,15 @@ var _getCommand = function(userCommand) {
 	if (!userCommand) {
 		return util.config.get('ERROR_COMMAND');
 	}
-  userCommand = userCommand.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
-	var pattern = new RegExp('\\[(([^\\[]*[,])?' + userCommand + '[^\\]]*)\\]', 'i'),
-		matches = cmdPattern.match(pattern) && cmdPattern.match(pattern)[0];
+  	userCommand = userCommand.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+	var pattern = new RegExp('\\[(([^\\[]*[,])?' + userCommand + ')[\\]|,]', 'i'),
+		matches = cmdPattern.match(pattern);
 
 	if (!matches) {
 		return util.config.get('ERROR_COMMAND');
 	}
 
-	var	strippedMatch = ( matches.match(/\[(.*)\]/) && matches.match(/\[(.*)\]/)[1] ) || '',
-		aliases = strippedMatch.split(',') || [];
-	return aliases.length ? aliases[0] : util.config.get('ERROR_COMMAND');
-
+	return matches[1].split(',')[0];
 };
 
 var init = function () {
