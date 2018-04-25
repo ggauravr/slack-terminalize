@@ -8,38 +8,40 @@ var logger		= require('winston'),
 
 	RTM_EVENTS	= require('@slack/client').RTM_EVENTS,
 	CLIENT_EVENTS = require('@slack/client').CLIENT_EVENTS,
-	
+
 	util = {
 		config: require('./util/config'),
 		command: require('./util/command')
 	},
-	
+
 	dispatcher	= require('./dispatcher'),
 	rtmClient, webClient;
 
-var _listen = function () {
-	dispatcher.init(rtmClient);
+var _handleMessage = function (message) {
+	dispatcher.handle(message);
+}
 
-	rtmClient.on(RTM_EVENTS.MESSAGE, function (message) {
-		dispatcher.handle(message);
-	});
-};
+var _startClient = function () {
 
-var _login = function () {
-	
 	if (!rtmClient) {
 		throw new Error('Slack RTM client not initialized');
 	}
 
-	logger.info('Initiating RTM client authentication');
-	rtmClient.start();
+	logger.info('Starting RTM client.');
 
-	rtmClient.on(CLIENT_EVENTS.RTM.AUTHENTICATED, function (rtmStartData) {
-		if (!dispatcher.isInitialized()) {
-			logger.info('RTM client authenticated.');
-			_listen();
-		}
+	dispatcher.init(rtmClient)
+
+	rtmClient.on('connected', function () {
+		logger.info('RTM client connected.');
+		rtmClient.addListener('message', _handleMessage);
 	});
+
+	rtmClient.on('disconnected', function () {
+		logger.info('RTM client disconnected.');
+		rtmClient.removeListener('message', _handleMessage);
+	});
+
+	rtmClient.start();
 };
 
 var getRTMClient = function () {
@@ -51,7 +53,7 @@ var getWebClient = function () {
 };
 
 var init = function (token, opts, config) {
-	
+
 	if (!token) {
 		throw new Error('slack token not passed with opts in init');
 	}
@@ -65,8 +67,8 @@ var init = function (token, opts, config) {
 	webClient = new WebClient(token, opts);
 
 	util.config.init(config);
-	
-	_login();
+
+	_startClient();
 };
 
 
