@@ -62,7 +62,7 @@ var init = function (client) {
 var handle = function (msg) {
   var data;
 
-  // gets command and args parametrs
+  // gets command and args parameters
   data = util.command.parse(msg);
 
   data.user = msg.user;

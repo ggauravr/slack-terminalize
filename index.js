@@ -29,19 +29,22 @@ var _startClient = function () {
 
   logger.info('Starting RTM client.');
 
-  dispatcher.init(rtmClient)
+  rtmClient.on(RTM_EVENTS.WS_OPENED, function () {
+    logger.info("RTM client's web socket did open. Registering message listener");
 
-  rtmClient.start();
+    if (!dispatcher.isInitialized()) {
+      dispatcher.init(rtmClient)
+    }
 
-  rtmClient.on(RTM_EVENTS.AUTHENTICATED, function () {
-    logger.info('RTM client authenticated.');
     rtmClient.addListener(RTM_EVENTS.MESSAGE, _handleMessage);
   });
 
   rtmClient.on(RTM_EVENTS.WS_CLOSE, function () {
-    logger.info("RTM client's web socket did close. Reconnection may occur automatically.");
+    logger.info("RTM client's web socket did close. Unregistering message listener.");
     rtmClient.removeListener(RTM_EVENTS.MESSAGE, _handleMessage);
   });
+
+  rtmClient.start();
 };
 
 var getRTMClient = function () {
