@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "@slack/client": "^2.3.0",
+    "npm": "^6.0.0",
     "winston": "^2.2.0"
   },
   "engines": {
