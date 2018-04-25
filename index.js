@@ -31,6 +31,8 @@ var _startClient = function () {
 
   dispatcher.init(rtmClient)
 
+  rtmClient.start();
+
   rtmClient.on(RTM_EVENTS.AUTHENTICATED, function () {
     logger.info('RTM client authenticated.');
     rtmClient.addListener(RTM_EVENTS.MESSAGE, _handleMessage);
@@ -40,8 +42,6 @@ var _startClient = function () {
     logger.info("RTM client's web socket did close. Reconnection may occur automatically.");
     rtmClient.removeListener(RTM_EVENTS.MESSAGE, _handleMessage);
   });
-
-  rtmClient.start();
 };
 
 var getRTMClient = function () {
