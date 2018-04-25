@@ -31,14 +31,14 @@ var _startClient = function () {
 
   dispatcher.init(rtmClient)
 
-  rtmClient.on('connected', function () {
-    logger.info('RTM client connected.');
-    rtmClient.addListener('message', _handleMessage);
+  rtmClient.on(RTM_EVENTS.AUTHENTICATED, function () {
+    logger.info('RTM client authenticated.');
+    rtmClient.addListener(RTM_EVENTS.MESSAGE, _handleMessage);
   });
 
-  rtmClient.on('disconnected', function () {
-    logger.info('RTM client disconnected.');
-    rtmClient.removeListener('message', _handleMessage);
+  rtmClient.on(RTM_EVENTS.WS_CLOSE, function () {
+    logger.info("RTM client's web socket did close. Reconnection may occur automatically.");
+    rtmClient.removeListener(RTM_EVENTS.MESSAGE, _handleMessage);
   });
 
   rtmClient.start();
